@@ -117,7 +117,7 @@ updateGame : Game -> (Game, Cmd Msg)
 updateGame game = 
     let
         cmd = if game.isDead then 
-            if game.highScore > game.score then Cmd.none else saveHighScore game.highScore
+            if game.highScore > game.score then Cmd.none else saveHighScore game.score
             else Cmd.none
     in
     if game.isDead || game.paused then
@@ -313,6 +313,8 @@ view game =
             [ render game ]
         , div [] 
             [text <| "Score: " ++ toString game.score]
+        , div []
+            [text <| "Your High Score is: " ++ toString  game.highScore]
         ]
     
 
@@ -434,13 +436,16 @@ saveHighScore hs =
 decodeHighScore : Decode.Value -> Int
 decodeHighScore val = 
     let
-        res = Decode.decodeValue Decode.int val 
+        res = Decode.decodeValue Decode.string val 
     in
     case res of 
         Ok num ->
-            num
+            String.toInt num |> Maybe.withDefault 0
         
-        Err _ -> 
+        Err er -> 
+            let
+                _ = Debug.log "err" er
+            in
             0
 
 subscriptions : Game -> Sub Msg
