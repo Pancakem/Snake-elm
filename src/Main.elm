@@ -115,8 +115,13 @@ generateApple game app =
 
 updateGame : Game -> (Game, Cmd Msg)
 updateGame game = 
+    let
+        cmd = if game.isDead then 
+            if game.highScore > game.score then Cmd.none else saveHighScore game.highScore
+            else Cmd.none
+    in
     if game.isDead || game.paused then
-        (game, Cmd.none)
+        (game, cmd)
     else 
         (game, Cmd.none)
             |> checkIfOutofBounds
@@ -420,11 +425,11 @@ keyPressed : (Direction -> msg) -> Sub msg
 keyPressed toMsg = 
     getKey (\val -> toMsg (decodeKey val))
 
-port getHighScore : (Decode.Value -> msg) -> Sub msg
+port highscoresave : Int -> Cmd msg
 
-gotHighScore : (Int-> msg) -> Sub msg
-gotHighScore toMsg = 
-    getHighScore (\val -> toMsg (decodeHighScore val))
+saveHighScore : Int -> Cmd msg
+saveHighScore hs = 
+    highscoresave hs
 
 decodeHighScore : Decode.Value -> Int
 decodeHighScore val = 
