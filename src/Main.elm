@@ -2,6 +2,7 @@ port module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes as Attrib
+import Html.Events exposing (onClick)
 import Random exposing (..)
 import Svg as Svg
 import Svg.Attributes exposing (..)
@@ -13,6 +14,7 @@ import Time exposing (..)
 type alias Game = 
     { direction : Direction
     , dimensions : Dimension
+    , mode : Mode
     , snake : Snake
     , isDead : Bool
     , ateApple : Bool
@@ -21,6 +23,11 @@ type alias Game =
     , score : Int
     , highScore : Int
     }
+
+type Mode = 
+    Easy
+    | Medium 
+    | Hard
 
 type alias Dimension =
     {height : Int
@@ -73,6 +80,7 @@ init val =
     , isDead = False
     , ateApple = False
     , apple = Nothing
+    , mode = Easy
     , paused = False
     , score = 0
     , highScore = highscore
@@ -86,6 +94,7 @@ type Msg
     = ArrowPressed Direction
     | Tick Posix
     | MaybeSpawnApple AppleSpawn
+    | ChangeGameMode Mode
 
 update : Msg -> Game -> ( Game, Cmd Msg )
 update msg game =
@@ -104,6 +113,9 @@ update msg game =
                 newGame = generateApple game applespawn
             in
             updateGame newGame
+        
+        ChangeGameMode mode ->
+            ({game | mode = mode}, Cmd.none)
     
 generateApple : Game -> AppleSpawn -> Game
 generateApple game app = 
@@ -299,9 +311,19 @@ getListBlock (Snake lis) =
 toString : Int -> String
 toString x = 
     String.fromInt x
+
+ 
     
 
 -- VIEWS
+
+gameSettings : Game -> Html Msg
+gameSettings game = 
+    div [] [
+        button [onClick <| ChangeGameMode Easy] [text "Easy"]
+        , button [onClick <| ChangeGameMode Medium] [text "Medium"]
+        , button [onClick <| ChangeGameMode Hard] [text "Hard"]
+    ]
 
 view : Game -> Html Msg
 view game = 
@@ -315,6 +337,7 @@ view game =
             [text <| "Score: " ++ toString game.score]
         , div []
             [text <| "Your High Score is: " ++ toString  game.highScore]
+        , div [][ gameSettings game ]
         ]
     
 
@@ -442,16 +465,25 @@ decodeHighScore val =
         Ok num ->
             String.toInt num |> Maybe.withDefault 0
         
-        Err er -> 
-            let
-                _ = Debug.log "err" er
-            in
+        Err er ->
             0
 
 subscriptions : Game -> Sub Msg
 subscriptions game =
+    let
+        speed = 
+            case game.mode of 
+                Easy ->
+                    300
+                
+                Medium -> 
+                    150
+
+                Hard ->
+                    50
+    in
     Sub.batch [keyPressed ArrowPressed
-        , if not game.paused then Time.every 1000 Tick else Sub.none]
+        , if not game.paused then Time.every speed Tick else Sub.none]
 
 main : Program Decode.Value Game Msg
 main =
