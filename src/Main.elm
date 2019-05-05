@@ -19,6 +19,7 @@ type alias Game =
     , apple : Maybe Block
     , paused : Bool
     , score : Int
+    , highScore : Int
     }
 
 type alias Dimension =
@@ -58,8 +59,11 @@ initSnake =
         Block (initDimX) (initDimY+2)
         ]
 
-init : () -> (Game, Cmd Msg)
-init _ =
+init : Decode.Value -> (Game, Cmd Msg)
+init val =
+    let
+        highscore = decodeHighScore val 
+    in
     ({ direction = Up
     , dimensions =
         { height = 400
@@ -71,6 +75,7 @@ init _ =
     , apple = Nothing
     , paused = False
     , score = 0
+    , highScore = highscore
     }
     , initCmds
     )
@@ -415,12 +420,30 @@ keyPressed : (Direction -> msg) -> Sub msg
 keyPressed toMsg = 
     getKey (\val -> toMsg (decodeKey val))
 
+port getHighScore : (Decode.Value -> msg) -> Sub msg
+
+gotHighScore : (Int-> msg) -> Sub msg
+gotHighScore toMsg = 
+    getHighScore (\val -> toMsg (decodeHighScore val))
+
+decodeHighScore : Decode.Value -> Int
+decodeHighScore val = 
+    let
+        res = Decode.decodeValue Decode.int val 
+    in
+    case res of 
+        Ok num ->
+            num
+        
+        Err _ -> 
+            0
+
 subscriptions : Game -> Sub Msg
 subscriptions game =
     Sub.batch [keyPressed ArrowPressed
         , if not game.paused then Time.every 1000 Tick else Sub.none]
 
-main : Program () Game Msg
+main : Program Decode.Value Game Msg
 main =
     Browser.element
         { init = init
