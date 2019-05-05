@@ -16,16 +16,23 @@
     </div>
     <script type="text/javascript" src="elm.js"></script>
     <script>
+    var storedHighScore= localStorage.getItem("snake-elm-highscore")
+    var theHighScore = null
+    if (storedHighScore){
+        theHighScore = storedHighScore
+    }
     var app = Elm.Main.init({
-        node: document.getElementById('elm')
+        node: document.getElementById('elm'),
+        flags: theHighScore
     });
 
     document.addEventListener("keydown", function(event) {
-        // app.ports.getKey.subscribe(function(event){
             setTimeout(function() { app.ports.getKey.send(event.key); }, 0);
-            console.log("Sent")
-        // });
     }, true);
+
+    app.ports.highscoresave.subscribe(function(data){
+        localStorage.setItem("snake-elm-highscore", data)
+    })
     </script>
 
     
