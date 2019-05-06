@@ -335,9 +335,6 @@ toString : Int -> String
 toString x = 
     String.fromInt x
 
- 
-    
-
 -- VIEWS
 
 gameSettings : Game -> Html Msg
