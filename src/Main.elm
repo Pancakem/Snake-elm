@@ -55,6 +55,25 @@ type alias AppleSpawn =
     , chance : Int
     }
 
+initNewGame : Game -> Game 
+initNewGame game = 
+    {direction = Up
+    , dimensions =
+        { height = 400
+        , width = 400
+        }
+    , snake = initSnake 
+    , isDead = False
+    , ateApple = False
+    , apple = Nothing
+    , mode = game.mode
+    , paused = False
+    , score = 0
+    , highScore = game.highScore
+    }
+    
+
+
 initSnake : Snake
 initSnake = 
     let
@@ -95,6 +114,7 @@ type Msg
     | Tick Posix
     | MaybeSpawnApple AppleSpawn
     | ChangeGameMode Mode
+    | RestartGame
 
 update : Msg -> Game -> ( Game, Cmd Msg )
 update msg game =
@@ -116,6 +136,9 @@ update msg game =
         
         ChangeGameMode mode ->
             ({game | mode = mode}, Cmd.none)
+        
+        RestartGame ->
+            (initNewGame game, Cmd.none)
     
 generateApple : Game -> AppleSpawn -> Game
 generateApple game app = 
@@ -320,7 +343,9 @@ toString x =
 gameSettings : Game -> Html Msg
 gameSettings game = 
     div [] [
-        button [onClick <| ChangeGameMode Easy] [text "Easy"]
+        button [onClick <| RestartGame] [text "New Game"]
+        , br[][]
+        ,button [onClick <| ChangeGameMode Easy] [text "Easy"]
         , button [onClick <| ChangeGameMode Medium] [text "Medium"]
         , button [onClick <| ChangeGameMode Hard] [text "Hard"]
     ]
