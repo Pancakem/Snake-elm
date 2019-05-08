@@ -4950,18 +4950,15 @@ var author$project$Main$flagDecoder = A3(
 		_List_fromArray(
 			['isMobile']),
 		elm$json$Json$Decode$bool));
-var elm$core$Debug$log = _Debug_log;
 var elm$json$Json$Decode$decodeValue = _Json_run;
 var author$project$Main$decodeFlag = function (val) {
 	var res = A2(elm$json$Json$Decode$decodeValue, author$project$Main$flagDecoder, val);
 	var flag = function () {
 		if (res.$ === 'Ok') {
 			var fl = res.a;
-			var _n1 = A2(elm$core$Debug$log, 'succ', fl);
 			return fl;
 		} else {
 			var er = res.a;
-			var _n2 = A2(elm$core$Debug$log, 'err', er);
 			return A2(author$project$Main$Flag, '0', false);
 		}
 	}();
@@ -5014,7 +5011,7 @@ var author$project$Main$init = function (val) {
 				0,
 				elm$core$String$toInt(flag.highScore)),
 			isDead: false,
-			isMobile: true,
+			isMobile: flag.isMobile,
 			mode: author$project$Main$Easy,
 			paused: false,
 			score: 0,
