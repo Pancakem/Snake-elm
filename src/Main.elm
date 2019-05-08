@@ -21,6 +21,7 @@ type alias Game =
     , apple : Maybe Block
     , paused : Bool
     , score : Int
+    , isMobile :  Bool
     , highScore : Int
     }
 
@@ -68,6 +69,7 @@ initNewGame game =
     , apple = Nothing
     , mode = game.mode
     , paused = False
+    , isMobile = False
     , score = 0
     , highScore = game.highScore
     }
@@ -88,7 +90,8 @@ initSnake =
 init : Decode.Value -> (Game, Cmd Msg)
 init val =
     let
-        highscore = decodeHighScore val 
+        flag = decodeFlag val 
+
     in
     ({ direction = Up
     , dimensions =
@@ -101,8 +104,9 @@ init val =
     , apple = Nothing
     , mode = Easy
     , paused = False
+    , isMobile = flag.isMobile
     , score = 0
-    , highScore = highscore
+    , highScore = Maybe.withDefault 0 <| String.toInt flag.highScore
     }
     , initCmds
     )
@@ -347,6 +351,15 @@ gameSettings game =
         , button [onClick <| ChangeGameMode Hard] [text "Hard"]
     ]
 
+mobileBrowserControls : Html Msg
+mobileBrowserControls = 
+    div[]
+        [ button [onClick <| ArrowPressed Left] [ text "Left"]
+        , button [onClick <| ArrowPressed Up] [ text "Up"]
+        , button [onClick <| ArrowPressed Down] [ text "Down"]
+        , button [onClick <| ArrowPressed Right] [ text "Right"]
+        ]
+
 view : Game -> Html Msg
 view game = 
     div [Attrib.style "text-align" "center"] 
@@ -360,6 +373,7 @@ view game =
         , div []
             [text <| "Your High Score is: " ++ toString  game.highScore]
         , div [][ gameSettings game ]
+        , if game.isMobile then mobileBrowserControls else div[][]
         ]
     
 
@@ -478,17 +492,38 @@ saveHighScore : Int -> Cmd msg
 saveHighScore hs = 
     highscoresave hs
 
-decodeHighScore : Decode.Value -> Int
-decodeHighScore val = 
+type alias Flag 
+    = { highScore : String
+    , isMobile : Bool
+    }
+
+flagDecoder : Decode.Decoder Flag
+flagDecoder = 
+    Decode.map2 Flag
+    (Decode.at ["high"] Decode.string)
+    (Decode.at ["isMobile"] Decode.bool)
+
+decodeFlag : Decode.Value -> Flag
+decodeFlag val = 
     let
-        res = Decode.decodeValue Decode.string val 
+        res = Decode.decodeValue flagDecoder val
+
+        flag =
+            case res of
+                Ok fl ->
+                    let
+                        _ = Debug.log "succ" fl
+                    in
+                    fl
+                
+                Err er ->
+                    let
+                        _ = Debug.log "err" er
+                    in
+                    Flag "0" False 
     in
-    case res of 
-        Ok num ->
-            String.toInt num |> Maybe.withDefault 0
-        
-        Err er ->
-            0
+    flag
+    
 
 subscriptions : Game -> Sub Msg
 subscriptions game =
@@ -496,13 +531,13 @@ subscriptions game =
         speed = 
             case game.mode of 
                 Easy ->
-                    300
+                    240
                 
                 Medium -> 
                     150
 
                 Hard ->
-                    50
+                    80
     in
     Sub.batch [keyPressed ArrowPressed
         , if not game.paused then Time.every speed Tick else Sub.none]
