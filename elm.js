@@ -5565,7 +5565,7 @@ var author$project$Main$initNewGame = function (game) {
 		direction: author$project$Main$Up,
 		highScore: game.highScore,
 		isDead: false,
-		isMobile: false,
+		isMobile: game.isMobile,
 		mode: game.mode,
 		paused: false,
 		score: 0,
@@ -6247,34 +6247,25 @@ var author$project$Main$mobileBrowserControls = A2(
 			_List_fromArray(
 				[
 					elm$html$Html$Events$onClick(
-					author$project$Main$ArrowPressed(author$project$Main$Left))
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Left')
-				])),
-			A2(
-			elm$html$Html$button,
-			_List_fromArray(
-				[
-					elm$html$Html$Events$onClick(
 					author$project$Main$ArrowPressed(author$project$Main$Up))
 				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Up')
 				])),
+			A2(elm$html$Html$br, _List_Nil, _List_Nil),
 			A2(
 			elm$html$Html$button,
 			_List_fromArray(
 				[
 					elm$html$Html$Events$onClick(
-					author$project$Main$ArrowPressed(author$project$Main$Down))
+					author$project$Main$ArrowPressed(author$project$Main$Left))
 				]),
 			_List_fromArray(
 				[
-					elm$html$Html$text('Down')
+					elm$html$Html$text('Left')
 				])),
+			elm$html$Html$text('                                  '),
 			A2(
 			elm$html$Html$button,
 			_List_fromArray(
@@ -6285,6 +6276,18 @@ var author$project$Main$mobileBrowserControls = A2(
 			_List_fromArray(
 				[
 					elm$html$Html$text('Right')
+				])),
+			A2(elm$html$Html$br, _List_Nil, _List_Nil),
+			A2(
+			elm$html$Html$button,
+			_List_fromArray(
+				[
+					elm$html$Html$Events$onClick(
+					author$project$Main$ArrowPressed(author$project$Main$Down))
+				]),
+			_List_fromArray(
+				[
+					elm$html$Html$text('Down')
 				]))
 		]));
 var author$project$Main$toString = function (x) {
