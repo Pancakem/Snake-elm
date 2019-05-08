@@ -21,7 +21,7 @@ type alias Game =
     , apple : Maybe Block
     , paused : Bool
     , score : Int
-    , isMobile :  Bool
+    , isMobile : Bool
     , highScore : Int
     }
 
@@ -69,13 +69,11 @@ initNewGame game =
     , apple = Nothing
     , mode = game.mode
     , paused = False
-    , isMobile = False
+    , isMobile = game.isMobile
     , score = 0
     , highScore = game.highScore
     }
     
-
-
 initSnake : Snake
 initSnake = 
     let
@@ -354,10 +352,13 @@ gameSettings game =
 mobileBrowserControls : Html Msg
 mobileBrowserControls = 
     div[]
-        [ button [onClick <| ArrowPressed Left] [ text "Left"]
-        , button [onClick <| ArrowPressed Up] [ text "Up"]
-        , button [onClick <| ArrowPressed Down] [ text "Down"]
+        [ button [onClick <| ArrowPressed Up] [ text "Up"]
+        , br [] []
+        ,button [onClick <| ArrowPressed Left] [ text "Left"]
+        , text "                                  "
         , button [onClick <| ArrowPressed Right] [ text "Right"]
+        , br [] []
+        , button [onClick <| ArrowPressed Down] [ text "Down"]
         ]
 
 view : Game -> Html Msg
@@ -511,15 +512,9 @@ decodeFlag val =
         flag =
             case res of
                 Ok fl ->
-                    let
-                        _ = Debug.log "succ" fl
-                    in
                     fl
                 
                 Err er ->
-                    let
-                        _ = Debug.log "err" er
-                    in
                     Flag "0" False 
     in
     flag
