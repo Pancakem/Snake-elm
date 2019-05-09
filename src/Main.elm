@@ -102,7 +102,7 @@ init val =
     , apple = Nothing
     , mode = Easy
     , paused = False
-    , isMobile = flag.isMobile
+    , isMobile = True --flag.isMobile
     , score = 0
     , highScore = Maybe.withDefault 0 <| String.toInt flag.highScore
     }
@@ -352,13 +352,13 @@ gameSettings game =
 mobileBrowserControls : Html Msg
 mobileBrowserControls = 
     div[]
-        [ button [onClick <| ArrowPressed Up] [ text "Up"]
+        [button [Attrib.style "height" "40px", Attrib.style "width" "60px", onClick <| ArrowPressed Up] [ text "Up"]
         , br [] []
-        ,button [onClick <| ArrowPressed Left] [ text "Left"]
+        ,button [Attrib.style "height" "40px", Attrib.style "width" "60px", onClick <| ArrowPressed Left] [ text "Left"]
         , text "                                  "
-        , button [onClick <| ArrowPressed Right] [ text "Right"]
+        ,button [Attrib.style "height" "40px", Attrib.style "width" "60px",onClick <| ArrowPressed Right] [ text "Right"]
         , br [] []
-        , button [onClick <| ArrowPressed Down] [ text "Down"]
+        ,button [Attrib.style "height" "40px", Attrib.style "width" "60px",onClick <| ArrowPressed Down] [ text "Down"]
         ]
 
 view : Game -> Html Msg
@@ -374,6 +374,7 @@ view game =
         , div []
             [text <| "Your High Score is: " ++ toString  game.highScore]
         , div [][ gameSettings game ]
+        , br[][]
         , if game.isMobile then mobileBrowserControls else div[][]
         ]
     
