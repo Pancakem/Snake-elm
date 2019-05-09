@@ -59,10 +59,7 @@ type alias AppleSpawn =
 initNewGame : Game -> Game 
 initNewGame game = 
     {direction = Up
-    , dimensions =
-        { height = 400
-        , width = 400
-        }
+    , dimensions = game.dimensions
     , snake = initSnake 
     , isDead = False
     , ateApple = False
@@ -92,17 +89,14 @@ init val =
 
     in
     ({ direction = Up
-    , dimensions =
-        { height = 400
-        , width = 500
-        }
+    , dimensions = Dimension (flag.height//2) (flag.width//2)
     , snake = initSnake 
     , isDead = False
     , ateApple = False
     , apple = Nothing
     , mode = Easy
     , paused = False
-    , isMobile = True --flag.isMobile
+    , isMobile = flag.isMobile
     , score = 0
     , highScore = Maybe.withDefault 0 <| String.toInt flag.highScore
     }
@@ -352,20 +346,20 @@ gameSettings game =
 mobileBrowserControls : Html Msg
 mobileBrowserControls = 
     div[]
-        [button [Attrib.style "height" "40px", Attrib.style "width" "60px", onClick <| ArrowPressed Up] [ text "Up"]
+        [button [Attrib.class "control-bttn", onClick <| ArrowPressed Up] [ text "Up"]
         , br [] []
-        ,button [Attrib.style "height" "40px", Attrib.style "width" "60px", onClick <| ArrowPressed Left] [ text "Left"]
+        ,button [Attrib.class "control-bttn", onClick <| ArrowPressed Left] [ text "Left"]
         , text "                                  "
-        ,button [Attrib.style "height" "40px", Attrib.style "width" "60px",onClick <| ArrowPressed Right] [ text "Right"]
+        ,button [Attrib.class "control-bttn", onClick <| ArrowPressed Right] [ text "Right"]
         , br [] []
-        ,button [Attrib.style "height" "40px", Attrib.style "width" "60px",onClick <| ArrowPressed Down] [ text "Down"]
+        ,button [Attrib.class "control-bttn", onClick <| ArrowPressed Down] [ text "Down"]
         ]
 
 view : Game -> Html Msg
 view game = 
     div [Attrib.style "text-align" "center"] 
-        [ div [Attrib.style ""  ""]
-            [p [Attrib.style "" ""] [text "Snake Game"]
+        [ div []
+            [p [][text "Snake Game"]
             ]
         , div []
             [ render game ]
@@ -495,13 +489,17 @@ saveHighScore hs =
     highscoresave hs
 
 type alias Flag 
-    = { highScore : String
+    = { height : Int
+    , width : Int 
+    ,highScore : String
     , isMobile : Bool
     }
 
 flagDecoder : Decode.Decoder Flag
 flagDecoder = 
-    Decode.map2 Flag
+    Decode.map4 Flag
+    (Decode.at ["height"] Decode.int)
+    (Decode.at ["width"] Decode.int)
     (Decode.at ["high"] Decode.string)
     (Decode.at ["isMobile"] Decode.bool)
 
@@ -516,7 +514,10 @@ decodeFlag val =
                     fl
                 
                 Err er ->
-                    Flag "0" False 
+                    let
+                        _ = Debug.log "err" er
+                    in  
+                    Flag 400 400 "0" False 
     in
     flag
     
