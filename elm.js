@@ -4393,11 +4393,15 @@ function _Browser_load(url)
 		}
 	}));
 }
+var author$project$Main$Dimension = F2(
+	function (height, width) {
+		return {height: height, width: width};
+	});
 var author$project$Main$Easy = {$: 'Easy'};
 var author$project$Main$Up = {$: 'Up'};
-var author$project$Main$Flag = F2(
-	function (highScore, isMobile) {
-		return {highScore: highScore, isMobile: isMobile};
+var author$project$Main$Flag = F4(
+	function (height, width, highScore, isMobile) {
+		return {height: height, highScore: highScore, isMobile: isMobile, width: width};
 	});
 var elm$core$Basics$EQ = {$: 'EQ'};
 var elm$core$Basics$GT = {$: 'GT'};
@@ -4935,11 +4939,22 @@ var elm$json$Json$Decode$at = F2(
 		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
 	});
 var elm$json$Json$Decode$bool = _Json_decodeBool;
-var elm$json$Json$Decode$map2 = _Json_map2;
+var elm$json$Json$Decode$int = _Json_decodeInt;
+var elm$json$Json$Decode$map4 = _Json_map4;
 var elm$json$Json$Decode$string = _Json_decodeString;
-var author$project$Main$flagDecoder = A3(
-	elm$json$Json$Decode$map2,
+var author$project$Main$flagDecoder = A5(
+	elm$json$Json$Decode$map4,
 	author$project$Main$Flag,
+	A2(
+		elm$json$Json$Decode$at,
+		_List_fromArray(
+			['height']),
+		elm$json$Json$Decode$int),
+	A2(
+		elm$json$Json$Decode$at,
+		_List_fromArray(
+			['width']),
+		elm$json$Json$Decode$int),
 	A2(
 		elm$json$Json$Decode$at,
 		_List_fromArray(
@@ -4950,6 +4965,7 @@ var author$project$Main$flagDecoder = A3(
 		_List_fromArray(
 			['isMobile']),
 		elm$json$Json$Decode$bool));
+var elm$core$Debug$log = _Debug_log;
 var elm$json$Json$Decode$decodeValue = _Json_run;
 var author$project$Main$decodeFlag = function (val) {
 	var res = A2(elm$json$Json$Decode$decodeValue, author$project$Main$flagDecoder, val);
@@ -4959,7 +4975,8 @@ var author$project$Main$decodeFlag = function (val) {
 			return fl;
 		} else {
 			var er = res.a;
-			return A2(author$project$Main$Flag, '0', false);
+			var _n1 = A2(elm$core$Debug$log, 'err', er);
+			return A4(author$project$Main$Flag, 400, 400, '0', false);
 		}
 	}();
 	return flag;
@@ -5004,7 +5021,7 @@ var author$project$Main$init = function (val) {
 		{
 			apple: elm$core$Maybe$Nothing,
 			ateApple: false,
-			dimensions: {height: 400, width: 500},
+			dimensions: A2(author$project$Main$Dimension, (flag.height / 2) | 0, (flag.width / 2) | 0),
 			direction: author$project$Main$Up,
 			highScore: A2(
 				elm$core$Maybe$withDefault,
@@ -5555,19 +5572,7 @@ var author$project$Main$generateApple = F2(
 			});
 	});
 var author$project$Main$initNewGame = function (game) {
-	return {
-		apple: elm$core$Maybe$Nothing,
-		ateApple: false,
-		dimensions: {height: 400, width: 400},
-		direction: author$project$Main$Up,
-		highScore: game.highScore,
-		isDead: false,
-		isMobile: game.isMobile,
-		mode: game.mode,
-		paused: false,
-		score: 0,
-		snake: author$project$Main$initSnake
-	};
+	return {apple: elm$core$Maybe$Nothing, ateApple: false, dimensions: game.dimensions, direction: author$project$Main$Up, highScore: game.highScore, isDead: false, isMobile: game.isMobile, mode: game.mode, paused: false, score: 0, snake: author$project$Main$initSnake};
 };
 var author$project$Main$updateDirection = F2(
 	function (dir, game) {
@@ -6147,6 +6152,7 @@ var author$project$Main$ChangeGameMode = function (a) {
 var author$project$Main$Hard = {$: 'Hard'};
 var author$project$Main$Medium = {$: 'Medium'};
 var author$project$Main$RestartGame = {$: 'RestartGame'};
+var elm$json$Json$Decode$map2 = _Json_map2;
 var elm$json$Json$Decode$succeed = _Json_succeed;
 var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
@@ -6234,6 +6240,15 @@ var author$project$Main$gameSettings = function (game) {
 					]))
 			]));
 };
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var author$project$Main$mobileBrowserControls = A2(
 	elm$html$Html$div,
 	_List_Nil,
@@ -6243,6 +6258,7 @@ var author$project$Main$mobileBrowserControls = A2(
 			elm$html$Html$button,
 			_List_fromArray(
 				[
+					elm$html$Html$Attributes$class('control-bttn'),
 					elm$html$Html$Events$onClick(
 					author$project$Main$ArrowPressed(author$project$Main$Up))
 				]),
@@ -6255,6 +6271,7 @@ var author$project$Main$mobileBrowserControls = A2(
 			elm$html$Html$button,
 			_List_fromArray(
 				[
+					elm$html$Html$Attributes$class('control-bttn'),
 					elm$html$Html$Events$onClick(
 					author$project$Main$ArrowPressed(author$project$Main$Left))
 				]),
@@ -6267,6 +6284,7 @@ var author$project$Main$mobileBrowserControls = A2(
 			elm$html$Html$button,
 			_List_fromArray(
 				[
+					elm$html$Html$Attributes$class('control-bttn'),
 					elm$html$Html$Events$onClick(
 					author$project$Main$ArrowPressed(author$project$Main$Right))
 				]),
@@ -6279,6 +6297,7 @@ var author$project$Main$mobileBrowserControls = A2(
 			elm$html$Html$button,
 			_List_fromArray(
 				[
+					elm$html$Html$Attributes$class('control-bttn'),
 					elm$html$Html$Events$onClick(
 					author$project$Main$ArrowPressed(author$project$Main$Down))
 				]),
@@ -6403,18 +6422,12 @@ var author$project$Main$view = function (game) {
 			[
 				A2(
 				elm$html$Html$div,
-				_List_fromArray(
-					[
-						A2(elm$html$Html$Attributes$style, '', '')
-					]),
+				_List_Nil,
 				_List_fromArray(
 					[
 						A2(
 						elm$html$Html$p,
-						_List_fromArray(
-							[
-								A2(elm$html$Html$Attributes$style, '', '')
-							]),
+						_List_Nil,
 						_List_fromArray(
 							[
 								elm$html$Html$text('Snake Game')
@@ -6450,6 +6463,7 @@ var author$project$Main$view = function (game) {
 					[
 						author$project$Main$gameSettings(game)
 					])),
+				A2(elm$html$Html$br, _List_Nil, _List_Nil),
 				game.isMobile ? author$project$Main$mobileBrowserControls : A2(elm$html$Html$div, _List_Nil, _List_Nil)
 			]));
 };
